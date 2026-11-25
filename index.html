@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIGNAAL 3401</title>
+<meta name="description" content="Er is een signaal ontvangen boven IJsselstein. Frequentie 3401.">
+<meta name="theme-color" content="#04060d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2304060d'/%3E%3Ccircle cx='32' cy='32' r='22' fill='none' stroke='%2339ff9c' stroke-width='4'/%3E%3Cpath d='M32 16 L47 44 H17 Z' fill='none' stroke='%2339ff9c' stroke-width='4'/%3E%3C/svg%3E">
+<!-- Je kijkt goed. Frequentie 3401. Verschuif de letters. -->
+<style>
+  :root{
+    --bg:#04060d; --tekst:#d6fbe8; --gedempt:#93b8a8;
+    --neon:#39ff9c; --neon2:#b46bff; --rand:rgba(57,255,156,.35);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+  }
+  body.anomalie{--neon:#b46bff;--neon2:#39ff9c;--rand:rgba(180,107,255,.45)}
+  body.ontknoping{--neon:#ff4fd8;--neon2:#ffd84f;--rand:rgba(255,79,216,.45)}
+  *{box-sizing:border-box}
+  html{background:var(--bg);color:var(--tekst);scroll-behavior:smooth}
+  body{margin:0;font-family:var(--mono);line-height:1.6;min-height:100vh;overflow-x:hidden;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  #sterren{position:fixed;inset:0;width:100%;height:100%;z-index:-2}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 0%,rgba(57,255,156,.10),transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(180,107,255,.12),transparent 55%)}
+  body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;opacity:.35;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px);
+    animation:scan 9s linear infinite}
+  @keyframes scan{from{background-position:0 0}to{background-position:0 60px}}
+  .skip{position:absolute;left:-999px;top:0;background:var(--neon);color:#000;padding:.6rem 1rem;z-index:100}
+  .skip:focus{left:0}
+  :focus-visible{outline:3px solid var(--neon2);outline-offset:3px}
+  .wrap{max-width:960px;margin:0 auto;padding:1.2rem clamp(1rem,4vw,2rem) 3rem}
+  header{display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap;
+    border-bottom:1px solid var(--rand);padding-bottom:1rem;font-size:.85rem;color:var(--gedempt);letter-spacing:.08em;text-transform:uppercase}
+  .symbool-knop{background:none;border:0;padding:0;cursor:pointer;color:var(--neon);line-height:0;border-radius:50%}
+  .symbool-knop svg{width:56px;height:56px;filter:drop-shadow(0 0 6px var(--neon));animation:puls 4s ease-in-out infinite}
+  @keyframes puls{50%{filter:drop-shadow(0 0 16px var(--neon));transform:scale(1.05)}}
+  .status{display:flex;flex-direction:column;gap:.1rem;text-align:right}
+  .status .live::before{content:"●";color:var(--neon);margin-right:.4em;animation:knip 1.4s steps(2) infinite}
+  @keyframes knip{50%{opacity:0}}
+  .hero{text-align:center;padding:clamp(2rem,8vw,4.5rem) 0 1.5rem}
+  h1{margin:0;font-size:clamp(2.2rem,10vw,5.5rem);letter-spacing:.12em;line-height:1.05;color:var(--neon);text-shadow:0 0 18px var(--neon)}
+  .glitch{position:relative;display:inline-block}
+  .glitch::before,.glitch::after{content:attr(data-t);content:attr(data-t) / "";position:absolute;inset:0;overflow:hidden}
+  .glitch::before{color:var(--neon2);transform:translateX(-3px);clip-path:inset(0 0 60% 0);animation:gl1 5s infinite steps(1)}
+  .glitch::after{color:#ff4f6a;transform:translateX(3px);clip-path:inset(60% 0 0 0);animation:gl2 6s infinite steps(1)}
+  @keyframes gl1{0%,92%,100%{opacity:0}93%{opacity:.8;clip-path:inset(10% 0 55% 0)}96%{opacity:.8;clip-path:inset(40% 0 30% 0)}}
+  @keyframes gl2{0%,88%,100%{opacity:0}89%{opacity:.8;clip-path:inset(70% 0 5% 0)}93%{opacity:.8;clip-path:inset(20% 0 60% 0)}}
+  .sub{color:var(--gedempt);max-width:34rem;margin:1.2rem auto 0}
+  .klok{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(.4rem,2vw,1rem);margin:2rem auto 0;max-width:640px}
+  .klok div{border:1px solid var(--rand);background:rgba(4,14,18,.65);padding:.9rem .2rem;border-radius:6px;box-shadow:0 0 18px rgba(57,255,156,.08) inset}
+  .klok b{display:block;font-size:clamp(1.8rem,8vw,3.4rem);font-weight:400;color:var(--neon);text-shadow:0 0 12px var(--neon);font-variant-numeric:tabular-nums}
+  .klok span{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gedempt)}
+  .klok-label{margin-top:1rem;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gedempt)}
+  section{margin-top:2.8rem}
+  h2{font-size:1rem;letter-spacing:.25em;text-transform:uppercase;color:var(--neon2);margin:0 0 1rem;font-weight:400}
+  h2::before{content:"// "}
+  .paneel{border:1px solid var(--rand);background:rgba(4,14,18,.7);border-radius:8px;padding:1.1rem}
+  button,input{font:inherit}
+  .knop{background:transparent;color:var(--neon);border:1px solid var(--neon);padding:.7rem 1.2rem;border-radius:4px;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;min-height:44px}
+  .knop:hover,.knop[aria-pressed="true"]{background:var(--neon);color:#001a0d;box-shadow:0 0 16px var(--neon)}
+  #golf{width:100%;height:90px;display:block;margin-top:1rem;border:1px solid var(--rand);border-radius:4px;background:#02040a}
+  .klein{font-size:.85rem;color:var(--gedempt);margin:.6rem 0 0}
+  ol#berichten{list-style:none;margin:0;padding:0;display:grid;gap:1rem}
+  .bericht{border:1px solid var(--rand);background:rgba(4,14,18,.7);border-radius:8px;padding:1rem 1.1rem}
+  .bericht h3{margin:0 0 .5rem;font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;color:var(--neon);font-weight:400}
+  .bericht .week{color:var(--gedempt)}
+  .code{font-size:clamp(1rem,3.8vw,1.5rem);letter-spacing:.14em;margin:.2rem 0 .8rem;word-break:break-word;min-height:1.6em}
+  .vergrendeld{opacity:.6;border-style:dashed}
+  .vergrendeld .code{color:var(--gedempt)}
+  .bericht .knop{padding:.5rem .9rem;font-size:.8rem}
+  form.afstem{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}
+  label{display:block;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gedempt);margin-bottom:.3rem;width:100%}
+  input[type=text]{background:#02040a;color:var(--tekst);border:1px solid var(--rand);padding:.7rem .9rem;border-radius:4px;min-height:44px;width:11rem;letter-spacing:.2em}
+  #afstem-uitkomst{margin:.9rem 0 0;min-height:1.6em}
+  details{margin-top:1rem;color:var(--gedempt);font-size:.9rem}
+  summary{cursor:pointer;color:var(--neon2)}
+  #ontknoping{display:none;text-align:center;border:1px solid var(--neon);box-shadow:0 0 40px var(--rand);padding:clamp(1.2rem,5vw,2.5rem);border-radius:10px;background:rgba(10,4,14,.8)}
+  body.ontknoping #ontknoping{display:block;animation:binnen 1.2s ease-out}
+  body.ontknoping .alleen-voor{display:none}
+  @keyframes binnen{from{opacity:0;transform:scale(.96)}}
+  #ontknoping p{max-width:36rem;margin:.8rem auto}
+  #ontknoping .groot{font-size:clamp(1.3rem,5vw,2.2rem);color:var(--neon);text-shadow:0 0 14px var(--neon);line-height:1.3}
+  #ontknoping img{max-width:200px;height:auto;margin:0 auto 1rem;display:block}
+  footer{margin-top:3.5rem;padding-top:1.2rem;border-top:1px solid var(--rand);font-size:.8rem;color:var(--gedempt);text-align:center}
+  .gecensureerd{background:var(--tekst);color:var(--tekst);border-radius:2px;padding:0 .3em;user-select:none}
+  body.ontknoping .gecensureerd{background:none;color:var(--neon);padding:0;user-select:auto}
+  .verborgen{color:#070a12}.verborgen::selection{background:var(--neon);color:#000}
+  .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  @media (max-width:480px){.status{text-align:left}}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#hoofd">Direct naar de inhoud</a>
+<canvas id="sterren" aria-hidden="true"></canvas>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="symbool" viewBox="0 0 100 100">
+    <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="50" cy="50" r="44"/>
+      <circle cx="50" cy="50" r="34" stroke-dasharray="3 7" stroke-width="2"/>
+      <path d="M50 20 L77 68 H23 Z"/>
+      <ellipse cx="50" cy="54" rx="11" ry="6"/>
+    </g>
+    <circle cx="50" cy="54" r="3.2" fill="currentColor"/>
+    <circle cx="50" cy="9" r="2.6" fill="currentColor"/><circle cx="12" cy="72" r="2.6" fill="currentColor"/><circle cx="88" cy="72" r="2.6" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<div class="wrap">
+  <header>
+    <button class="symbool-knop" id="symbool-knop" type="button" aria-label="Symbool van het signaal">
+      <svg role="img" aria-label="Buitenaards symbool: een cirkel met een driehoek en een oog"><use href="#symbool"/></svg>
+    </button>
+    <div class="status">
+      <span class="live">Frequentie 3401 · <span id="coord"></span></span>
+      <span id="status-tekst">Status: signaal wordt ontvangen</span>
+    </div>
+  </header>
+
+  <main id="hoofd">
+    <div class="hero">
+      <h1><span class="glitch" data-t="SIGNAAL 3401">SIGNAAL 3401</span></h1>
+      <p class="sub alleen-voor">Boven IJsselstein is een onbekend signaal opgevangen. De bron is onbekend. De boodschap is onvolledig. Het signaal wordt sterker.</p>
+      <div class="klok" id="klok" role="timer" aria-label="Aftelklok">
+        <div><b id="k-d">00</b><span>dagen</span></div>
+        <div><b id="k-u">00</b><span>uren</span></div>
+        <div><b id="k-m">00</b><span>minuten</span></div>
+        <div><b id="k-s">00</b><span>seconden</span></div>
+      </div>
+      <p class="klok-label alleen-voor">Tot de aankomst</p>
+    </div>
+
+    <section id="ontknoping" aria-labelledby="ont-titel" tabindex="-1">
+      <img id="ont-logo" alt="" hidden>
+      <h2 id="ont-titel">De aankomst</h2>
+      <p>Wekenlang waren de signalen zichtbaar. Vreemde tekens verschenen in de omgeving. Onverklaarbare lichten werden waargenomen. De inwoners van IJsselstein hadden vragen.</p>
+      <p><strong>Tot vandaag.</strong></p>
+      <p>Wij hebben jullie bestudeerd. Jullie gewoonten. Jullie muziek. Jullie merkwaardige jaarlijkse rituelen.</p>
+      <p class="groot">Wij komen niet om de aarde te veroveren.<br>Wij komen om carnaval te vieren!</p>
+    </section>
+
+    <section aria-labelledby="h-signaal">
+      <h2 id="h-signaal">Onderschept signaal</h2>
+      <div class="paneel">
+        <button class="knop" id="geluid" type="button" aria-pressed="false">▶ Luister mee</button>
+        <canvas id="golf" role="img" aria-label="Golfvorm van het onderschepte signaal"></canvas>
+        <p class="klein">Het signaal klinkt pas als je erom vraagt. Zet je volume niet te hard. Elke week komt er een laag bij.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-berichten">
+      <h2 id="h-berichten">Gecodeerde transmissies</h2>
+      <ol id="berichten"></ol>
+      <details>
+        <summary>Hint nodig?</summary>
+        <p>De boodschappen zijn niet willekeurig. Elke letter is een vast aantal plaatsen opgeschoven in het alfabet. Het getal van de frequentie, gedeeld door 26, houdt een rest over. Die rest is de sleutel.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="h-afstem">
+      <h2 id="h-afstem">Afstemmen</h2>
+      <div class="paneel">
+        <form class="afstem" id="afstem" autocomplete="off">
+          <div>
+            <label for="freq">Stem af op een frequentie</label>
+            <input type="text" id="freq" name="freq" inputmode="numeric" maxlength="8" placeholder="0000">
+          </div>
+          <button class="knop" type="submit">Afstemmen</button>
+        </form>
+        <p id="afstem-uitkomst" role="status" aria-live="polite"></p>
+        <p class="klein verborgen">Selecteer deze regel. Soms zit het antwoord in de postcode.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Dit is een fictief interactief project uit IJsselstein. Er is geen sprake van een echte noodsituatie.</p>
+    <p>Een project van <span class="gecensureerd" id="naam" aria-label="naam nog geheim">▮▮▮▮▮▮▮ 11</span>, IJsselstein</p>
+  </footer>
+</div>
+<div id="toast" class="vh" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ INSTELLINGEN: door de vereniging aan te passen ============ */
+const CONFIG = {
+  optocht: '2027-02-07T14:11:00+01:00',        // START OPTOCHT (klok loopt hierop af)
+  weken: [                                      // ontgrendeling van de boodschappen
+    { start: '2027-01-10T00:00:00+01:00', tekst: 'WIJ ZIJN ONDERWEG' },
+    { start: '2027-01-17T00:00:00+01:00', tekst: 'WIJ OBSERVEREN IJSSELSTEIN' },
+    { start: '2027-01-24T00:00:00+01:00', tekst: 'WIJ HEBBEN JULLIE GEHOORD' },
+    { start: '2027-01-31T00:00:00+01:00', tekst: 'DE POORT GAAT OPEN. WIJ ZIEN JULLIE BIJ DE AANKOMST' }
+  ],
+  verschuiving: 3401 % 26,                      // = 21, de sleutel van de code
+  coordinaten: '52.02° N · 5.04° E',
+  verborgenBoodschap: 'Frequentie gevonden. Het getal is geen toeval: het begint bij elke brievenbus in IJsselstein. Houd de etalages en de zwarte posters in de gaten.',
+  verenigingNaam: 'Carnavalsvereniging Boortje 11',
+  logoUrl: ''                                    // bijv. 'logo.png' (wordt pas bij de ontknoping getoond)
+};
+/* ======================================================================= */
+
+const $ = s => document.querySelector(s);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const pad = n => String(n).padStart(2, '0');
+
+/* Testmodus: ?test=1..4 toont week 1..4, ?test=nul toont de ontknoping. Verwijder dit voor livegang. */
+let offset = 0;
+(function(){
+  const t = new URLSearchParams(location.search).get('test');
+  if (!t) return;
+  let doel = null;
+  if (t === 'nul') doel = Date.parse(CONFIG.optocht) - 3000;
+  else if (+t >= 1 && +t <= CONFIG.weken.length) doel = Date.parse(CONFIG.weken[+t - 1].start) + 1000;
+  if (doel) offset = doel - Date.now();
+})();
+const nu = () => Date.now() + offset;
+
+$('#coord').textContent = CONFIG.coordinaten;
+console.log('%cSIGNAAL 3401', 'color:#39ff9c;font-size:20px', '— verschuiving: 3401 mod 26');
+
+/* ---------- Sterrenhemel ---------- */
+const cv = $('#sterren'), g = cv.getContext('2d');
+let sterren = [], W = 0, H = 0, dpr = 1;
+function initSterren(){
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  W = cv.width = Math.round(innerWidth * dpr);
+  H = cv.height = Math.round(innerHeight * dpr);
+  const n = Math.min(260, Math.round(innerWidth * innerHeight / 6500));
+  sterren = Array.from({length: n}, () => ({
+    x: Math.random() * W, y: Math.random() * H,
+    r: (Math.random() * 1.3 + .3) * dpr, f: Math.random() * 6.28,
+    s: .5 + Math.random() * 1.5, v: (.02 + Math.random() * .08) * dpr
+  }));
+  tekenSterren(0);
+}
+function tekenSterren(t){
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = '#cfffe6';
+  for (const s of sterren){
+    g.globalAlpha = .35 + .65 * Math.abs(Math.sin(s.f + t / 1000 * s.s * .6));
+    g.beginPath(); g.arc(s.x, s.y, s.r, 0, 6.283); g.fill();
+    if (!reduce){ s.y += s.v; if (s.y > H) { s.y = 0; s.x = Math.random() * W; } }
+  }
+}
+function lusSterren(t){ tekenSterren(t); requestAnimationFrame(lusSterren); }
+addEventListener('resize', initSterren);
+initSterren();
+if (!reduce) requestAnimationFrame(lusSterren);
+
+/* ---------- Code ---------- */
+function schuif(tekst, n){
+  return tekst.replace(/[A-Z]/g, c => String.fromCharCode((c.charCodeAt(0) - 65 + n + 26) % 26 + 65));
+}
+const codeer = t => schuif(t, CONFIG.verschuiving);
+
+function ontcijferAnimatie(el, cijfer, tekst, klaar){
+  if (reduce){ el.textContent = tekst; klaar(); return; }
+  let frame = 0; const totaal = 26;
+  el.setAttribute('aria-busy', 'true');
+  const iv = setInterval(() => {
+    frame++;
+    const vast = Math.floor(tekst.length * frame / totaal);
+    let uit = '';
+    for (let i = 0; i < tekst.length; i++){
+      const c = tekst[i];
+      uit += (i < vast || !/[A-Z]/.test(c)) ? c : String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    }
+    el.textContent = uit;
+    if (frame >= totaal){ clearInterval(iv); el.textContent = tekst; el.removeAttribute('aria-busy'); klaar(); }
+  }, 55);
+}
+
+/* ---------- Boodschappen ---------- */
+let ontgrendeld = -1;
+function bouwBerichten(){
+  const ol = $('#berichten'); ol.innerHTML = '';
+  CONFIG.weken.forEach((w, i) => {
+    const open = i < ontgrendeld;
+    const li = document.createElement('li');
+    li.className = 'bericht' + (open ? '' : ' vergrendeld');
+    const h = document.createElement('h3');
+    h.innerHTML = `Transmissie ${pad(i + 1)} <span class="week">· week ${i + 1}</span>`;
+    const p = document.createElement('p');
+    p.className = 'code';
+    li.append(h, p);
+    if (open){
+      const cijfer = codeer(w.tekst);
+      p.textContent = cijfer;
+      p.setAttribute('aria-label', 'Gecodeerde boodschap');
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'knop'; b.textContent = 'Ontcijfer';
+      let gedecodeerd = false, bezig = false;
+      b.addEventListener('click', () => {
+        if (bezig) return;
+        if (!gedecodeerd){
+          bezig = true;
+          ontcijferAnimatie(p, cijfer, w.tekst, () => {
+            gedecodeerd = true; bezig = false; b.textContent = 'Toon code';
+            p.removeAttribute('aria-label'); p.setAttribute('aria-live', 'polite');
+          });
+        } else {
+          p.textContent = cijfer; gedecodeerd = false; b.textContent = 'Ontcijfer';
+          p.setAttribute('aria-label', 'Gecodeerde boodschap'); p.removeAttribute('aria-live');
+        }
+      });
+      li.append(b);
+    } else {
+      p.textContent = '▒▒▒▒ ▒▒▒▒▒▒▒ ▒▒▒▒▒▒';
+      p.setAttribute('aria-label', 'Nog geen signaal ontvangen');
+      const k = document.createElement('p');
+      k.className = 'klein'; k.textContent = `Signaal verstoord. Verwacht in week ${i + 1}.`;
+      li.append(k);
+    }
+    ol.append(li);
+  });
+}
+
+/* ---------- Aftelklok ---------- */
+let afgelopen = false, laatsteMinuut = -1;
+function tick(){
+  const rest = Math.max(0, Date.parse(CONFIG.optocht) - nu());
+  const s = Math.floor(rest / 1000);
+  const d = Math.floor(s / 86400), u = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+  $('#k-d').textContent = pad(d); $('#k-u').textContent = pad(u);
+  $('#k-m').textContent = pad(m); $('#k-s').textContent = pad(sec);
+  const minuutSleutel = Math.floor(s / 60);
+  if (minuutSleutel !== laatsteMinuut){
+    laatsteMinuut = minuutSleutel;
+    $('#klok').setAttribute('aria-label', `Nog ${d} dagen, ${u} uur en ${m} minuten tot de aankomst`);
+  }
+  const nieuw = CONFIG.weken.filter(w => nu() >= Date.parse(w.start)).length;
+  if (nieuw !== ontgrendeld){
+    ontgrendeld = nieuw; bouwBerichten();
+    $('#status-tekst').textContent = nieuw === 0
+      ? 'Status: signaal zwak, wachten op transmissie'
+      : `Status: ${nieuw} van ${CONFIG.weken.length} transmissies ontvangen`;
+  }
+  if (rest === 0 && !afgelopen){ afgelopen = true; ontknoping(); }
+}
+function ontknoping(){
+  document.body.classList.add('ontknoping');
+  $('#status-tekst').textContent = 'Status: de aankomst is begonnen';
+  const n = $('#naam'); n.textContent = CONFIG.verenigingNaam; n.removeAttribute('aria-label');
+  if (CONFIG.logoUrl){
+    const img = $('#ont-logo'); img.src = CONFIG.logoUrl; img.alt = 'Logo ' + CONFIG.verenigingNaam; img.hidden = false;
+  }
+  if (audioAan) stopAudio();
+  $('#ontknoping').focus({preventScroll: true});
+}
+setInterval(tick, 1000); tick();
+
+/* ---------- Geluid (Web Audio, geen bestanden) ---------- */
+let ctx = null, master = null, analyser = null, cyclusTimer = null, audioAan = false, drone = null;
+function ruisBuffer(c){
+  const b = c.createBuffer(1, c.sampleRate * 2, c.sampleRate), d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return b;
+}
+function piep(t, f, dur, type, vol){
+  const o = ctx.createOscillator(), gn = ctx.createGain();
+  o.type = type; o.frequency.value = f;
+  gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vol, t + .01);
+  gn.gain.setValueAtTime(vol, t + dur - .03); gn.gain.linearRampToValueAtTime(0, t + dur);
+  o.connect(gn).connect(master); o.start(t); o.stop(t + dur + .02);
+}
+function cyclus(){
+  if (!ctx) return;
+  const t0 = ctx.currentTime + .1; let t = t0;
+  const basis = 720 + ontgrendeld * 60;
+  [3, 4, 0, 1].forEach(c => {            // 3 – 4 – 0 – 1
+    if (c === 0){ piep(t, basis / 2, .7, 'square', .12); t += .9; }
+    else { for (let i = 0; i < c; i++){ piep(t, basis, .12, 'sine', .25); t += .2; } t += .5; }
+  });
+  if (ontgrendeld >= 2){                  // week 2: stijgende sweep
+    const o = ctx.createOscillator(), gn = ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(200, t0 + 4.2);
+    o.frequency.exponentialRampToValueAtTime(1800, t0 + 6.7);
+    gn.gain.setValueAtTime(0, t0 + 4.2); gn.gain.linearRampToValueAtTime(.05, t0 + 5.5); gn.gain.linearRampToValueAtTime(0, t0 + 6.7);
+    o.connect(gn).connect(master); o.start(t0 + 4.2); o.stop(t0 + 6.8);
+  }
+  if (ontgrendeld >= 3){                  // week 3: onverstaanbare "stem"
+    const o = ctx.createOscillator(), f = ctx.createBiquadFilter(), gn = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.value = 95;
+    f.type = 'bandpass'; f.Q.value = 4; f.frequency.value = 800;
+    lfo.frequency.value = 3.5; lg.gain.value = 450; lfo.connect(lg).connect(f.frequency);
+    for (let i = 0; i < 6; i++){
+      const s = t0 + .4 + i * .65;
+      gn.gain.setValueAtTime(0, s); gn.gain.linearRampToValueAtTime(.18, s + .08); gn.gain.linearRampToValueAtTime(0, s + .45);
+    }
+    o.connect(f).connect(gn).connect(master);
+    o.start(t0); lfo.start(t0); o.stop(t0 + 4.2); lfo.stop(t0 + 4.2);
+  }
+  cyclusTimer = setTimeout(cyclus, 8000);
+}
+function startAudio(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) { $('#toast').textContent = 'Geluid wordt niet ondersteund in deze browser.'; return; }
+  ctx = new AC(); master = ctx.createGain(); master.gain.value = 0;
+  analyser = ctx.createAnalyser(); analyser.fftSize = 1024;
+  master.connect(analyser); analyser.connect(ctx.destination);
+  master.gain.setTargetAtTime(.5, ctx.currentTime, .1);
+  const ruis = ctx.createBufferSource(), rf = ctx.createBiquadFilter(), rg = ctx.createGain();
+  ruis.buffer = ruisBuffer(ctx); ruis.loop = true; rf.type = 'bandpass'; rf.frequency.value = 1800; rg.gain.value = .04;
+  ruis.connect(rf).connect(rg).connect(master); ruis.start();
+  if (ontgrendeld >= 4){
+    drone = ctx.createOscillator(); const dg = ctx.createGain();
+    drone.type = 'sine'; drone.frequency.value = 55; dg.gain.value = .14; drone.connect(dg).connect(master); drone.start();
+  }
+  audioAan = true; cyclus();
+}
+function stopAudio(){
+  clearTimeout(cyclusTimer);
+  if (ctx){ master.gain.setTargetAtTime(0, ctx.currentTime, .05); const c = ctx; setTimeout(() => c.close(), 400); }
+  ctx = null; analyser = null; drone = null; audioAan = false;
+  const b = $('#geluid'); b.setAttribute('aria-pressed', 'false'); b.textContent = '▶ Luister mee';
+}
+$('#geluid').addEventListener('click', e => {
+  if (audioAan) stopAudio();
+  else { startAudio(); if (audioAan){ e.currentTarget.setAttribute('aria-pressed', 'true'); e.currentTarget.textContent = '■ Stop signaal'; } }
+});
+
+/* Golfvorm */
+const gc = $('#golf'), gg = gc.getContext('2d');
+function golfFormaat(){ const r = gc.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); gc.width = r.width * d; gc.height = r.height * d; }
+addEventListener('resize', golfFormaat); golfFormaat();
+const kleurNeon = () => getComputedStyle(document.body).getPropertyValue('--neon').trim();
+function tekenGolf(t){
+  const w = gc.width, h = gc.height;
+  gg.clearRect(0, 0, w, h);
+  gg.lineWidth = 2 * (devicePixelRatio > 1 ? 1.5 : 1); gg.strokeStyle = kleurNeon(); gg.shadowColor = gg.strokeStyle; gg.shadowBlur = 8;
+  gg.beginPath();
+  if (analyser){
+    const data = new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(data);
+    for (let i = 0; i < data.length; i++){ const x = i / data.length * w, y = data[i] / 255 * h; i ? gg.lineTo(x, y) : gg.moveTo(x, y); }
+  } else {
+    for (let x = 0; x <= w; x += 4){ const y = h / 2 + (reduce ? 0 : Math.sin(x * .02 + t / 400) * 3 + (Math.random() - .5) * 2); x ? gg.lineTo(x, y) : gg.moveTo(x, y); }
+  }
+  gg.stroke();
+  if (!reduce || audioAan) requestAnimationFrame(tekenGolf);
+}
+requestAnimationFrame(tekenGolf);
+
+/* ---------- Afstemmen (verborgen boodschap) ---------- */
+$('#afstem').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('#freq').value.trim(), uit = $('#afstem-uitkomst');
+  uit.textContent = v === '3401' ? CONFIG.verborgenBoodschap
+    : v === '' ? 'Voer een frequentie in.'
+    : `Frequentie ${v}: alleen ruis.`;
+});
+
+/* ---------- Verborgen: drie keer op het symbool ---------- */
+let klikken = 0, klikTimer;
+$('#symbool-knop').addEventListener('click', () => {
+  klikken++; clearTimeout(klikTimer); klikTimer = setTimeout(() => klikken = 0, 1200);
+  if (klikken >= 3){
+    klikken = 0;
+    const aan = document.body.classList.toggle('anomalie');
+    $('#toast').textContent = aan ? 'Anomalie geregistreerd. Het signaal verandert van kleur.' : 'Signaal hersteld.';
+  }
+});
+</script>
+</body>
+</html>
